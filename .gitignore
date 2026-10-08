@@ -1,0 +1,49 @@
+# Binaries
+yamzzbot
+yamzzbot.exe
+main.exe
+*.exe~
+
+# Session Database (IMPORTANT: Keep this persistent in Pterodactyl!)
+# But don't commit to git for security
+wp_sessions.db
+wp_sessions.db-shm
+wp_sessions.db-wal
+
+# Data folders
+data/
+logs/
+recordings/
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Go
+go.work
+go.work.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+
+# Credentials
+cookies.txt
+bot_config.json
+
+# Build artifacts
+build/
+dist/

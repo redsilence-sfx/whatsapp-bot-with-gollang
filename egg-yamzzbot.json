@@ -1,0 +1,144 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2024-01-15T12:00:00+00:00",
+    "name": "YamzzBot WhatsApp Caller",
+    "author": "yamzzdev@example.com",
+    "description": "WhatsApp Bot with Voice/Video Call Features, Group Management, and YouTube Integration",
+    "features": null,
+    "docker_images": {
+        "ghcr.io/parkervcp/yolks:nodejs_18": "ghcr.io/parkervcp/yolks:nodejs_18",
+        "ghcr.io/parkervcp/yolks:nodejs_20": "ghcr.io/parkervcp/yolks:nodejs_20",
+        "ghcr.io/parkervcp/yolks:nodejs_21": "ghcr.io/parkervcp/yolks:nodejs_21"
+    },
+    "file_denylist": [],
+    "startup": "if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -z ${NODE_PACKAGES} ]]; then /usr/local/bin/npm install ${NODE_PACKAGES}; fi; if [[ ! -z ${UNNODE_PACKAGES} ]]; then /usr/local/bin/npm uninstall ${UNNODE_PACKAGES}; fi; if [ -f /home/container/package.json ]; then /usr/local/bin/npm install; fi; /usr/local/bin/node /home/container/{{JS_FILE}}",
+    "config": {
+        "files": "{\r\n    \"package.json\": {\r\n        \"parser\": \"json\",\r\n        \"find\": {\r\n            \"scripts.start\": \"node {{JS_FILE}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": [\"✅ Node.js Wrapper Server Running\", \"Bot Status:\"]\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\n# YamzzBot Installation Script for Pterodactyl Panel\nset -e\n\necho \"============================================================\"\necho \"   👑 YAMZZBOT WHATSAPP CALLER - INSTALLATION 👑\"\necho \"============================================================\"\n\n# Update system packages\necho -e \"\\n📦 Updating system packages...\"\napt update\napt install -y git curl jq file unzip make gcc g++ python3 python3-dev libtool ffmpeg wget ca-certificates\n\n# Install Go compiler\necho -e \"\\n🔧 Installing Go ${GO_VERSION:-1.21.5}...\"\nGO_VERSION=\"${GO_VERSION:-1.21.5}\"\nif ! command -v go &> /dev/null; then\n    wget -q https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz\n    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz\n    rm go${GO_VERSION}.linux-amd64.tar.gz\nfi\nexport PATH=$PATH:/usr/local/go/bin\nexport GOPATH=/home/container/go\nexport GOCACHE=/home/container/.cache/go-build\n\necho -e \"✅ Go version: $(go version)\"\n\n# Navigate to server directory\ncd /mnt/server\n\necho -e \"\\n📂 Working directory: $(pwd)\"\n\n# Handle Git or User Upload\nif [ \"${USER_UPLOAD}\" == \"true\" ] || [ \"${USER_UPLOAD}\" == \"1\" ]; then\n    echo -e \"\\n📦 User upload mode - Files will be uploaded manually\"\n    echo -e \"⚠️  Make sure to upload all files including: main.go, index.js, package.json, go.mod\"\nelse\n    echo -e \"\\n📥 Git clone mode...\"\n    if [ -z \"${GIT_ADDRESS}\" ]; then\n        echo -e \"❌ ERROR: GIT_ADDRESS not set!\"\n        exit 1\n    fi\n    if [ -d .git ]; then\n        echo -e \"📥 Pulling latest changes...\"\n        git pull\n    else\n        echo -e \"📥 Cloning repository: ${GIT_ADDRESS}\"\n        git clone ${GIT_ADDRESS} .\n    fi\nfi\n\n# Build Go binary if source exists\nif [ -f go.mod ] && [ -f main.go ]; then\n    echo -e \"\\n🔨 Installing Go dependencies...\"\n    go mod download\n    \n    echo -e \"\\n🔨 Building Go binary (yamzzbot)...\"\n    go build -o yamzzbot .\n    \n    if [ -f yamzzbot ]; then\n        chmod +x yamzzbot\n        echo -e \"✅ Go binary built successfully: $(ls -lh yamzzbot | awk '{print $5}')\"\n    else\n        echo -e \"❌ ERROR: Failed to build Go binary!\"\n        exit 1\n    fi\nelse\n    echo -e \"\\n⚠️  WARNING: go.mod or main.go not found, skipping Go build\"\n    echo -e \"⚠️  If you're using user upload, make sure to upload yamzzbot binary!\"\nfi\n\n# Install Node.js dependencies\nif [ -f package.json ]; then\n    echo -e \"\\n📦 Installing Node.js dependencies...\"\n    npm install --production --no-optional\n    echo -e \"✅ Node.js packages installed\"\nelse\n    echo -e \"\\n⚠️  WARNING: package.json not found, skipping npm install\"\nfi\n\n# Create necessary directories\necho -e \"\\n📁 Creating data directories...\"\nmkdir -p data recordings logs\n\n# Set permissions\necho -e \"\\n🔐 Setting permissions...\"\nchmod -R 755 .\nif [ -f yamzzbot ]; then\n    chmod +x yamzzbot\nfi\n\necho -e \"\\n============================================================\"\necho -e \"✅ Installation completed successfully!\"\necho -e \"============================================================\"\necho -e \"\\n📋 Next steps:\"\necho -e \"  1. Click START button in Pterodactyl panel\"\necho -e \"  2. Bot will start and show QR/Pairing code\"\necho -e \"  3. Scan QR or enter pairing code in WhatsApp\"\necho -e \"\\n🔗 Project files:\"\nls -lah | grep -E '(yamzzbot|index.js|package.json|go.mod|main.go|bot_config.json)'\necho -e \"\\n============================================================\\n\"",
+            "container": "node:18-bookworm",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "JavaScript File",
+            "description": "The main JavaScript file to run (default: index.js)",
+            "env_variable": "JS_FILE",
+            "default_value": "index.js",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:100",
+            "field_type": "text"
+        },
+        {
+            "name": "Node Packages",
+            "description": "Install additional Node packages (space-separated)",
+            "env_variable": "NODE_PACKAGES",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Uninstall Node Packages",
+            "description": "Uninstall Node packages (space-separated)",
+            "env_variable": "UNNODE_PACKAGES",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Auto Update",
+            "description": "Pull latest code from git on startup",
+            "env_variable": "AUTO_UPDATE",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Repository Address",
+            "description": "Git repository URL (if using git deployment)",
+            "env_variable": "GIT_ADDRESS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "User Upload",
+            "description": "Skip git clone (files uploaded manually)",
+            "env_variable": "USER_UPLOAD",
+            "default_value": "1",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "WhatsApp Port",
+            "description": "Port for WhatsApp service (internal)",
+            "env_variable": "WP_PORT",
+            "default_value": "20825",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|integer|between:1024,65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Go Version",
+            "description": "Go compiler version to install",
+            "env_variable": "GO_VERSION",
+            "default_value": "1.21.5",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Bot Prefix",
+            "description": "Command prefix (default: -)",
+            "env_variable": "BOT_PREFIX",
+            "default_value": "-",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:5",
+            "field_type": "text"
+        },
+        {
+            "name": "Owner Number",
+            "description": "WhatsApp owner number (with country code, no +)",
+            "env_variable": "OWNER_NUMBER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Enable Debug",
+            "description": "Enable debug logging (1=yes, 0=no)",
+            "env_variable": "DEBUG",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        }
+    ]
+}

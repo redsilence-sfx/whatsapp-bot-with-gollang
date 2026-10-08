@@ -1,0 +1,27 @@
+{
+  "bot_name": "Spartan X Aman WhatsApp Caller",
+  "prefix": ".",
+  "owner": {
+    "number": "6281959348726",
+    "jid": "6281959348726@s.whatsapp.net",
+    "name": "Main Owner"
+  },
+  "admins": [
+    "6281959348726",
+    "6281959348726"
+  ],
+  "settings": {
+    "mode": "adminonly",
+    "auto_accept_calls": false,
+    "auto_join_group_calls": false,
+    "cooldown_seconds": 30
+  },
+  "features": {
+    "group_lock": true,
+    "online_detection": true,
+    "auto_unmute": true
+  },
+  "api_keys": {
+    "theresav": "your_api_key_here"
+  }
+}
